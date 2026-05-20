@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mine & Craft Avatar Hub — Розподілена Ігрова Екосистема</title>
+  <meta name="description" content="Сучасна розподілена безсерверна ігрова екосистема з локальним збереженням IndexedDB, безпечною пісочницею та синхронізацією через Git або радіомережу EME.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Header Bar -->
+  <header>
+    <div class="logo">
+      <h1 id="hub-main-title">AVATAR HUB</h1>
+    </div>
+    
+    <div class="status-bar">
+      <!-- Sync Mode Indicator -->
+      <div class="mode-indicator-container" title="Поточний режим синхронізації даних">
+        <div id="mode-indicator" class="indicator-dot local"></div>
+        <span id="mode-text">Offline Local Mode</span>
+      </div>
+      
+      <!-- Manual Probe Button -->
+      <button id="manual-sync-btn" class="sync-btn" title="Перевірити наявність Desktop Companion або EME OS вузла">
+        🔄 Промацати Мережу
+      </button>
+
+      <!-- Resources Bar -->
+      <div class="resources-bar">
+        <div class="res-item gold" title="Золота руда (видобувається в іграх)">
+          <span class="icon">🪙</span>
+          <span id="res-gold">0</span>
+        </div>
+        <div class="res-item ruby" title="Неонові рубіни (видобуваються в іграх)">
+          <span class="icon">💎</span>
+          <span id="res-ruby">0</span>
+        </div>
+        <div class="res-item sapphire" title="Кібер-сапфіри (видобуваються в іграх)">
+          <span class="icon">🌀</span>
+          <span id="res-sapphire">0</span>
+        </div>
+        <div class="res-item eme" title="Радіо токени EME (нараховуються за Proof of Coverage / Mesh активність)">
+          <span class="icon">📟</span>
+          <span id="res-eme">0</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Grid Container -->
+  <main class="main-container">
+    
+    <!-- Profile & Customization Panel (Left) -->
+    <section class="panel profile-panel">
+      <div class="avatar-container">
+        <canvas id="avatar-canvas" width="256" height="256"></canvas>
+      </div>
+      
+      <div class="player-info">
+        <h2 id="player-name">Завантаження...</h2>
+        <p>Коміт-послідовність: <strong id="player-seq">0</strong></p>
+      </div>
+
+      <!-- GitHub Cloud Sync Settings -->
+      <div class="git-settings-panel">
+        <button id="toggle-git-settings" class="git-settings-toggle-btn">⚙️ Налаштувати GitHub Cloud</button>
+        <div id="git-settings-content" class="git-settings-content hidden">
+          <div class="input-group">
+            <label for="git-pat">GitHub Token (PAT):</label>
+            <input type="password" id="git-pat" placeholder="ghp_..." title="Згенеруйте токен з правами 'repo' або 'gist' на github.com" />
+          </div>
+          <div class="input-group">
+            <label for="git-repo">Репозиторій (user/repo):</label>
+            <input type="text" id="git-repo" placeholder="taras/my-saves" title="Наприклад, 'myname/saves-repo'" />
+          </div>
+          <div class="input-group">
+            <label for="git-filepath">Шлях у репозиторії:</label>
+            <input type="text" id="git-filepath" value="saves/save.json" title="Шлях, куди буде записано файл" />
+          </div>
+          <button id="save-git-config-btn" class="buy-btn" style="width: 100%; margin-top: 0.5rem; background: var(--glow-cyan); color: #000; font-weight: bold;">
+            Зберегти та Синхронізувати
+          </button>
+        </div>
+      </div>
+      
+      <!-- Editor / Customizer Controls -->
+      <div id="editor-options" class="editor-container">
+        <!-- Буде заповнено динамічно через hub.js -->
+        <p style="text-align: center; color: var(--text-secondary);">Ініціалізація редактора...</p>
+      </div>
+    </section>
+
+    <!-- Center Hero Panel -->
+    <section class="panel center-panel">
+      <div class="lobby-hero">
+        <h1 id="lobby-welcome-title">Mine & Craft Lobby</h1>
+        <p>
+          Ласкаво просимо до вашого суверенного ігрового кабінету. Тут ви можете кастомізувати свій цифровий аватар, купувати унікальні кібернетичні апгрейди та запускати безпечні ізольовані розваги.
+        </p>
+        <p style="font-size: 0.9rem; color: var(--text-secondary);">
+          Всі ваші досягнення зберігаються автономно в IndexedDB і можуть бути синхронізовані через фоновий Git-репозиторій або передані через низькошвидкісні середньохвильові радіолінки EME.
+        </p>
+        
+        <button id="play-btn" class="btn-primary" title="Запустити безпечну гру Match-3">
+          🚀 Запустити Match-3 Adventure
+        </button>
+      </div>
+
+      <!-- Dev Logger Console HUD -->
+      <div class="console-container">
+        <h3>System Log Console</h3>
+        <div id="dev-console" class="console-log">
+          <p>[00:00:00] Ініціалізація Mine & Craft Avatar Hub...</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Cyber Shop Panel (Right) -->
+    <section class="panel shop-panel">
+      <h2>Cyber Shop</h2>
+      <div id="shop-list" class="shop-list">
+        <!-- Буде заповнено динамічно через hub.js -->
+        <p style="text-align: center; color: var(--text-secondary);">Завантаження товарів...</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Sandbox Game Modal (Full-Screen Iframe) -->
+  <div id="game-container" class="game-container-modal">
+    <div class="game-header">
+      <h2>Secured Sandbox Session: Match-3 Game</h2>
+      <button id="close-game-btn" class="close-btn">Exit Session (Save & Close)</button>
+    </div>
+    <!-- 🔒 Безпечна ізоляція: sandbox без allow-same-origin захищає parent від крадіжки localStorage/IndexedDB -->
+    <iframe id="game-frame" sandbox="allow-scripts" src=""></iframe>
+  </div>
+
+  <!-- Main hub script loaded as ES Module -->
+  <script type="module" src="js/hub.js"></script>
+</body>
+</html>
