@@ -2,14 +2,14 @@
   "version": 3,
   "player": {
     "username": "player_2368",
-    "sequence": 18,
+    "sequence": 19,
     "last_sync_hash": "00000000"
   },
   "resources": {
-    "resource:ruby": 0,
-    "resource:sapphire": 0,
-    "resource:emerald": 91,
-    "resource:gold": 0,
+    "resource:ruby": 4,
+    "resource:sapphire": 3,
+    "resource:emerald": 94,
+    "resource:gold": 7,
     "resource:eme_token": 0
   },
   "inventory": {
@@ -32,12 +32,12 @@
   "last_session": {
     "game_id": "match3",
     "game_version": "1.2.0",
-    "duration": 8,
+    "duration": 3,
     "earned": {
-      "resource:gold": 20,
-      "resource:ruby": 12,
+      "resource:gold": 7,
+      "resource:ruby": 4,
       "resource:sapphire": 3,
-      "resource:emerald": 15
+      "resource:emerald": 3
     }
   },
   "somatic_game_state": {
