@@ -116,7 +116,7 @@ class AvatarHub {
         },
         inventory: {
           charItems: ["skin_default", "hair_default", "eyes_default"],
-          unlockedGames: ["match3"],
+          unlockedGames: ["match3", "somatic_game"],
         },
         activeCharacter: { ...DEFAULT_AVATAR },
         last_session: null,
@@ -274,6 +274,9 @@ class AvatarHub {
       { id: "eyes_neon", name: "Yellow Energy Lenses", type: "eyes", cost: 35, res: "resource:sapphire" },
       { id: "somatic_game", name: "The Shape We Become (Somatic Game)", type: "game", cost: 100, res: "resource:gold" },
       { id: "empathy_core", name: "Quantum Empathy Heart Core", type: "item", cost: 10, res: "resource:eme_token" },
+      { id: "blueprint_core", name: "Quantum Cyber-Core Blueprint", type: "blueprint", cost: 150, res: "resource:gold" },
+      { id: "blueprint_mesh", name: "EME Radio-Mesh Node Schematic", type: "blueprint", cost: 50, res: "resource:ruby" },
+      { id: "blueprint_antenna", name: "Moon-Reflector Antenna Design", type: "blueprint", cost: 40, res: "resource:sapphire" },
     ];
 
     // Фільтруємо каталог на основі обраної категорії
@@ -282,6 +285,7 @@ class AvatarHub {
       if (this.currentShopCategory === "base") return item.type === "base";
       if (this.currentShopCategory === "miner") return item.type === "hair" || item.type === "eyes";
       if (this.currentShopCategory === "somatic") return item.type === "game" || item.type === "item";
+      if (this.currentShopCategory === "blueprints") return item.type === "blueprint";
       return true;
     });
 
@@ -800,7 +804,7 @@ class AvatarHub {
       },
       inventory: {
         charItems: ["skin_default", "hair_default", "eyes_default"],
-        unlockedGames: ["match3"],
+        unlockedGames: ["match3", "somatic_game"],
       },
       activeCharacter: { ...DEFAULT_AVATAR },
       last_session: null,
