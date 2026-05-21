@@ -25,6 +25,7 @@ class AvatarHub {
     this.saveState = null;
     this.activeToken = null;
     this.sessionStartTime = null;
+    this.currentShopCategory = "all"; // Нова властивість для фільтрації магазину за категоріями
   }
 
   async init() {
@@ -35,6 +36,7 @@ class AvatarHub {
     this.initEventListeners();
     this.renderAvatar();
     this.updateUI();
+    this.initZenNavigation(); // Ініціалізація Zen Navigation та хоткеїв
   }
 
   loadGitConfigFromStorage() {
@@ -106,10 +108,10 @@ class AvatarHub {
           last_sync_hash: "00000000",
         },
         resources: {
-          "resource:ruby": 100,
-          "resource:sapphire": 50,
-          "resource:emerald": 10,
-          "resource:gold": 200,
+          "resource:ruby": 0,
+          "resource:sapphire": 0,
+          "resource:emerald": 0,
+          "resource:gold": 0,
           "resource:eme_token": 0,
         },
         inventory: {
@@ -270,10 +272,23 @@ class AvatarHub {
       { id: "hair_cyber", name: "Purple Future Dreadlocks", type: "hair", cost: 60, res: "resource:ruby" },
       { id: "eyes_cyborg", name: "Cyber Visor Red Eye", type: "eyes", cost: 20, res: "resource:sapphire" },
       { id: "eyes_neon", name: "Yellow Energy Lenses", type: "eyes", cost: 35, res: "resource:sapphire" },
+      { id: "somatic_game", name: "The Shape We Become (Somatic Game)", type: "game", cost: 100, res: "resource:gold" },
+      { id: "empathy_core", name: "Quantum Empathy Heart Core", type: "item", cost: 10, res: "resource:eme_token" },
     ];
 
-    catalog.forEach((item) => {
-      const owned = this.saveState.inventory.charItems.includes(item.id);
+    // Фільтруємо каталог на основі обраної категорії
+    const filteredCatalog = catalog.filter((item) => {
+      if (this.currentShopCategory === "all") return true;
+      if (this.currentShopCategory === "base") return item.type === "base";
+      if (this.currentShopCategory === "miner") return item.type === "hair" || item.type === "eyes";
+      if (this.currentShopCategory === "somatic") return item.type === "game" || item.type === "item";
+      return true;
+    });
+
+    filteredCatalog.forEach((item) => {
+      const owned = item.type === "game"
+        ? (this.saveState.inventory.unlockedGames || []).includes(item.id)
+        : this.saveState.inventory.charItems.includes(item.id);
       const canAfford = this.saveState.resources[item.res] >= item.cost;
 
       const card = document.createElement("div");
@@ -332,17 +347,40 @@ class AvatarHub {
 
       editContainer.appendChild(group);
     });
+
+    // Оновлення бібліотеки ігор
+    const somaticCard = document.getElementById("somatic-game-card");
+    const somaticStatus = document.getElementById("somatic-game-status");
+    if (somaticCard && somaticStatus) {
+      const isSomaticUnlocked = (this.saveState.inventory.unlockedGames || []).includes("somatic_game");
+      if (isSomaticUnlocked) {
+        somaticCard.className = "game-card active";
+        somaticStatus.innerHTML = `<button id="play-somatic-btn" class="game-play-btn">🚀 Запустити сесію</button>`;
+      } else {
+        somaticCard.className = "game-card locked";
+        somaticStatus.innerHTML = `<span class="game-lock-badge">🔒 Заблоковано (Купіть у Cyber Shop за 100 золото)</span>`;
+      }
+    }
   }
 
   async purchaseItem(item) {
-    if (this.saveState.inventory.charItems.includes(item.id)) return;
+    const isGame = item.type === "game";
+    const inventoryList = isGame
+      ? (this.saveState.inventory.unlockedGames || [])
+      : this.saveState.inventory.charItems;
+
+    if (inventoryList.includes(item.id)) return;
     if (this.saveState.resources[item.res] < item.cost) return;
 
     const resources = { ...this.saveState.resources };
     resources[item.res] -= item.cost;
 
-    const charItems = [...this.saveState.inventory.charItems, item.id];
-    const inventory = { ...this.saveState.inventory, charItems };
+    let inventory = { ...this.saveState.inventory };
+    if (isGame) {
+      inventory.unlockedGames = [...(inventory.unlockedGames || []), item.id];
+    } else {
+      inventory.charItems = [...(inventory.charItems || []), item.id];
+    }
 
     await this.save({ resources, inventory });
   }
@@ -353,15 +391,22 @@ class AvatarHub {
     await this.save({ activeCharacter });
   }
 
-  launchGame() {
+  launchGame(gameId = "match3") {
     this.activeToken = crypto.randomUUID();
     this.sessionStartTime = Date.now();
 
     const gameFrame = document.getElementById("game-frame");
     const gameContainer = document.getElementById("game-container");
+    const gameTitle = document.querySelector(".game-header h2");
     
     if (gameFrame && gameContainer) {
-      gameFrame.src = `games/match3/index.html?token=${this.activeToken}`;
+      if (gameId === "somatic") {
+        gameFrame.src = `games/somatic/index.html?token=${this.activeToken}`;
+        if (gameTitle) gameTitle.innerText = "Secured Sandbox Session: The Shape We Become";
+      } else {
+        gameFrame.src = `games/match3/index.html?token=${this.activeToken}`;
+        if (gameTitle) gameTitle.innerText = "Secured Sandbox Session: Match-3 Game";
+      }
       gameContainer.style.display = "block";
     }
   }
@@ -374,26 +419,60 @@ class AvatarHub {
       gameFrame.src = "";
     }
     this.activeToken = null;
+    this.updateUI();
   }
 
   initEventListeners() {
-    const playBtn = document.getElementById("play-btn");
     const closeBtn = document.getElementById("close-game-btn");
     const manualSyncBtn = document.getElementById("manual-sync-btn");
 
-    if (playBtn) playBtn.addEventListener("click", () => this.launchGame());
     if (closeBtn) closeBtn.addEventListener("click", () => this.closeGame());
     if (manualSyncBtn) manualSyncBtn.addEventListener("click", () => this.syncMode());
 
-    // GitHub Cloud Sync Panel Toggling & Saving
-    const toggleGitBtn = document.getElementById("toggle-git-settings");
-    const gitContent = document.getElementById("git-settings-content");
-    if (toggleGitBtn && gitContent) {
-      toggleGitBtn.addEventListener("click", () => {
-        gitContent.classList.toggle("hidden");
-      });
+    // Dynamic delegate for modular launch buttons
+    document.addEventListener("click", (e) => {
+      if (e.target && e.target.id === "play-match3-btn") {
+        this.launchGame("match3");
+      }
+      if (e.target && e.target.id === "play-somatic-btn") {
+        this.launchGame("somatic");
+      }
+    });
+
+    // 💾 Local File Sync (Dual-Path Saves)
+    const exportBtn = document.getElementById("export-save-btn");
+    const importInput = document.getElementById("import-save-file");
+
+    if (exportBtn) {
+      exportBtn.addEventListener("click", () => this.exportSave());
+    }
+    if (importInput) {
+      importInput.addEventListener("change", (e) => this.importSave(e));
     }
 
+    // ⚡ Maintenance & Purge buttons
+    const resetProfileBtn = document.getElementById("reset-profile-btn");
+    const clearDbBtn = document.getElementById("clear-db-btn");
+
+    if (resetProfileBtn) {
+      resetProfileBtn.addEventListener("click", () => this.resetProfile());
+    }
+    if (clearDbBtn) {
+      clearDbBtn.addEventListener("click", () => this.clearDatabase());
+    }
+
+    // 🛒 Shop Categories tab switching
+    const shopTabButtons = document.querySelectorAll(".shop-tab-btn");
+    shopTabButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        shopTabButtons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        this.currentShopCategory = btn.getAttribute("data-category");
+        this.updateUI();
+      });
+    });
+
+    // ☁️ GitHub Config Saving
     const saveGitConfigBtn = document.getElementById("save-git-config-btn");
     if (saveGitConfigBtn) {
       saveGitConfigBtn.addEventListener("click", async () => {
@@ -448,42 +527,330 @@ class AvatarHub {
     // 🔒 postMessage listener з верифікацією Session Token та лімітів
     window.addEventListener("message", (event) => {
       const data = event.data;
-      if (!data || data.type !== "EARN_RESOURCES") return;
+      if (!data) return;
 
-      const payload = data.payload;
-      if (!payload || payload.token !== this.activeToken) {
-        console.error("🔒 Security Alert: Unauthorized Session Token in postMessage");
+      // 1. Handshake: Ініціалізація гри у iframe
+      if (data.type === "INIT_GAME") {
+        if (data.token !== this.activeToken) {
+          console.error("🔒 Security Alert: Unauthorized Session Token in INIT_GAME");
+          return;
+        }
+        event.source.postMessage({
+          type: "LOAD_GAME_STATE",
+          token: this.activeToken,
+          saveState: this.saveState
+        }, "*");
         return;
       }
 
-      // М'яка валідація швидкості (Plausibility filter)
-      const duration = (Date.now() - this.sessionStartTime) / 1000;
-      const claimedGold = payload.resources["resource:gold"] || 0;
-      
-      const maxAllowed = duration * 2.5; // maxRatePerSecond = 2.5
-      if (claimedGold > maxAllowed + 5) { // додаємо невелику похибку 5
-        console.warn("⚠️ Plausibility Warning: Gold rate too high. Capping resources.");
-        payload.resources["resource:gold"] = Math.floor(maxAllowed);
+      // 2. Realtime Sync з соматичної гри
+      if (data.type === "SAVE_GAME_STATE") {
+        const payload = data.payload;
+        if (!payload || payload.token !== this.activeToken) {
+          console.error("🔒 Security Alert: Unauthorized Session Token in SAVE_GAME_STATE");
+          return;
+        }
+
+        const somaticState = payload.somaticGameState;
+        if (!somaticState) return;
+
+        // Злиття ресурсів: Love -> Ruby, Food -> Gold, Rest -> Sapphire
+        const resources = { ...this.saveState.resources };
+        resources["resource:ruby"] = somaticState.resources.love || 0;
+        resources["resource:gold"] = somaticState.resources.food || 0;
+        resources["resource:sapphire"] = somaticState.resources.rest || 0;
+
+        const somatic_game_state = somaticState;
+
+        this.save({ resources, somatic_game_state });
+        return;
       }
 
-      // Нараховуємо ресурси
-      const resources = { ...this.saveState.resources };
-      Object.entries(payload.resources).forEach(([key, val]) => {
-        if (resources[key] !== undefined) {
-          resources[key] += val;
+      // 3. Match-3 earn resources
+      if (data.type === "EARN_RESOURCES") {
+        const payload = data.payload;
+        if (!payload || payload.token !== this.activeToken) {
+          console.error("🔒 Security Alert: Unauthorized Session Token in postMessage");
+          return;
         }
-      });
 
-      const last_session = {
-        game_id: "match3",
-        game_version: "1.2.0",
-        duration: Math.floor(duration),
-        earned: payload.resources,
-      };
+        // М'яка валідація швидкості (Plausibility filter)
+        const duration = (Date.now() - this.sessionStartTime) / 1000;
+        const claimedGold = payload.resources["resource:gold"] || 0;
+        
+        const maxAllowed = duration * 2.5; // maxRatePerSecond = 2.5
+        if (claimedGold > maxAllowed + 5) { // додаємо невелику похибку 5
+          console.warn("⚠️ Plausibility Warning: Gold rate too high. Capping resources.");
+          payload.resources["resource:gold"] = Math.floor(maxAllowed);
+        }
 
-      this.save({ resources, last_session });
-      this.closeGame();
+        // Нараховуємо ресурси
+        const resources = { ...this.saveState.resources };
+        Object.entries(payload.resources).forEach(([key, val]) => {
+          if (resources[key] !== undefined) {
+            resources[key] += val;
+          }
+        });
+
+        const last_session = {
+          game_id: "match3",
+          game_version: "1.2.0",
+          duration: Math.floor(duration),
+          earned: payload.resources,
+        };
+
+        this.save({ resources, last_session });
+        this.closeGame();
+        return;
+      }
     });
+  }
+
+  // 🧬 Zen Navigation & Keyboard Shortcuts
+  initZenNavigation() {
+    const navButtons = document.querySelectorAll(".zen-nav-btn");
+    navButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const targetTab = btn.getAttribute("data-tab");
+        this.switchTab(targetTab);
+      });
+    });
+
+    // Обробка гарячих клавіш для швидкого перемикання
+    document.addEventListener("keydown", (e) => {
+      // Ігноруємо гарячі клавіші, якщо фокус в полях введення
+      if (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "TEXTAREA") {
+        return;
+      }
+
+      const key = e.key.toLowerCase();
+      if (key === "a" || key === "ф") {
+        e.preventDefault();
+        this.switchTab("avatar");
+      } else if (key === "d" || key === "в") {
+        e.preventDefault();
+        this.switchTab("domain");
+      } else if (key === "c" || key === "с") {
+        e.preventDefault();
+        this.switchTab("shop");
+      } else if (key === "b" || key === "и") {
+        e.preventDefault();
+        this.switchTab("build");
+      }
+    });
+  }
+
+  switchTab(tabId) {
+    const navButtons = document.querySelectorAll(".zen-nav-btn");
+    const tabPanels = document.querySelectorAll(".zen-tab-panel");
+
+    navButtons.forEach((btn) => {
+      if (btn.getAttribute("data-tab") === tabId) {
+        btn.classList.add("active");
+      } else {
+        btn.classList.remove("active");
+      }
+    });
+
+    tabPanels.forEach((panel) => {
+      const id = panel.getAttribute("id");
+      if (id === `view-${tabId}`) {
+        panel.classList.add("active");
+      } else {
+        panel.classList.remove("active");
+      }
+    });
+
+    // Запис у консоль хабу
+    const consoleDiv = document.getElementById("dev-console");
+    if (consoleDiv) {
+      const p = document.createElement("p");
+      p.innerText = `[${new Date().toLocaleTimeString()}] Switched view to: [${tabId.toUpperCase()}]`;
+      consoleDiv.appendChild(p);
+      consoleDiv.scrollTop = consoleDiv.scrollHeight;
+    }
+  }
+
+  // 📥 Експорт локального збереження у файл save.json
+  exportSave() {
+    try {
+      if (!this.saveState) {
+        alert("Помилка: нема даних для експорту!");
+        return;
+      }
+      const dataStr = JSON.stringify(this.saveState, null, 2);
+      const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+
+      const exportFileDefaultName = `save_${this.saveState.player.username}_seq${this.saveState.player.sequence}.json`;
+
+      const linkElement = document.createElement('a');
+      linkElement.setAttribute('href', dataUri);
+      linkElement.setAttribute('download', exportFileDefaultName);
+      linkElement.click();
+
+      const consoleDiv = document.getElementById("dev-console");
+      if (consoleDiv) {
+        const p = document.createElement("p");
+        p.className = "success";
+        p.innerText = `[${new Date().toLocaleTimeString()}] Save exported successfully: ${exportFileDefaultName}`;
+        consoleDiv.appendChild(p);
+        consoleDiv.scrollTop = consoleDiv.scrollHeight;
+      }
+    } catch (error) {
+      console.error("Export save failed", error);
+      alert("Не вдалося експортувати файл збереження!");
+    }
+  }
+
+  // 📤 Імпорт збереження з файлу save.json з повною валідацією схеми
+  async importSave(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const importedData = JSON.parse(e.target.result);
+
+        // Валідація схеми (Anti-corruption check)
+        if (!importedData || typeof importedData !== "object") {
+          throw new Error("Файл не є валідним об'єктом JSON");
+        }
+        if (!importedData.player || typeof importedData.player.username !== "string") {
+          throw new Error("Відсутнє ім'я гравця (player.username)");
+        }
+        if (typeof importedData.player.sequence !== "number" || importedData.player.sequence < 1) {
+          throw new Error("Невалідний номер коміт-послідовності (player.sequence)");
+        }
+        if (!importedData.resources || typeof importedData.resources !== "object") {
+          throw new Error("Відсутній об'єкт ресурсів (resources)");
+        }
+
+        // Перевіряємо, щоб усі ресурси були позитивними числами
+        for (const [key, val] of Object.entries(importedData.resources)) {
+          if (typeof val !== "number" || val < 0) {
+            throw new Error(`Невалідний баланс ресурсу ${key}: має бути позитивним числом`);
+          }
+        }
+
+        if (!importedData.inventory || typeof importedData.inventory !== "object") {
+          throw new Error("Відсутній інвентар (inventory)");
+        }
+        if (!Array.isArray(importedData.inventory.charItems)) {
+          throw new Error("Невалідний список скінів (inventory.charItems)");
+        }
+        if (!Array.isArray(importedData.inventory.unlockedGames)) {
+          throw new Error("Невалідний список ігор (inventory.unlockedGames)");
+        }
+        if (!importedData.activeCharacter || typeof importedData.activeCharacter !== "object") {
+          throw new Error("Відсутня конфігурація аватара (activeCharacter)");
+        }
+
+        // Все добре, застосовуємо збереження
+        this.saveState = importedData;
+        await db.set("save_state", this.saveState);
+
+        // Якщо у нас налаштований Git Sync, синхронізуємо
+        await api.saveState(this.saveState);
+
+        this.updateUI();
+        this.renderAvatar();
+
+        // Скидаємо input значення
+        event.target.value = "";
+
+        const consoleDiv = document.getElementById("dev-console");
+        if (consoleDiv) {
+          const p = document.createElement("p");
+          p.className = "success";
+          p.innerText = `[${new Date().toLocaleTimeString()}] Save imported successfully (Seq #${this.saveState.player.sequence}) for ${this.saveState.player.username}`;
+          consoleDiv.appendChild(p);
+          consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        }
+
+        alert(`Збереження імпортовано успішно для ${this.saveState.player.username}!`);
+      } catch (error) {
+        console.error("Import save failed", error);
+        alert(`Помилка імпорту збереження: ${error.message}`);
+        event.target.value = "";
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  // ❌ Скидання профілю до початкового стану
+  async resetProfile() {
+    if (!confirm("Ви впевнені, що хочете скинути свій профіль? Усі ресурси та куплені скіни будуть видалені!")) {
+      return;
+    }
+
+    const state = {
+      version: 3,
+      player: {
+        username: "player_" + Math.floor(Math.random() * 10000),
+        sequence: 1,
+        last_sync_hash: "00000000",
+      },
+      resources: {
+        "resource:ruby": 0,
+        "resource:sapphire": 0,
+        "resource:emerald": 0,
+        "resource:gold": 0,
+        "resource:eme_token": 0,
+      },
+      inventory: {
+        charItems: ["skin_default", "hair_default", "eyes_default"],
+        unlockedGames: ["match3"],
+      },
+      activeCharacter: { ...DEFAULT_AVATAR },
+      last_session: null,
+    };
+
+    this.saveState = state;
+    await db.set("save_state", state);
+    
+    // Спроба відправити на сервер
+    await api.saveState(state);
+
+    this.updateUI();
+    this.renderAvatar();
+
+    const consoleDiv = document.getElementById("dev-console");
+    if (consoleDiv) {
+      const p = document.createElement("p");
+      p.className = "warning";
+      p.innerText = `[${new Date().toLocaleTimeString()}] Profile reset to default values.`;
+      consoleDiv.appendChild(p);
+      consoleDiv.scrollTop = consoleDiv.scrollHeight;
+    }
+
+    alert("Профіль успішно скинуто!");
+  }
+
+  // 🧹 Повне очищення IndexedDB
+  async clearDatabase() {
+    if (!confirm("Ви впевнені, що хочете повністю очистити IndexedDB? Це призведе до повної втрати локальних даних!")) {
+      return;
+    }
+
+    try {
+      await db.clear();
+      
+      const consoleDiv = document.getElementById("dev-console");
+      if (consoleDiv) {
+        const p = document.createElement("p");
+        p.className = "warning";
+        p.innerText = `[${new Date().toLocaleTimeString()}] IndexedDB completely purged!`;
+        consoleDiv.appendChild(p);
+        consoleDiv.scrollTop = consoleDiv.scrollHeight;
+      }
+
+      alert("IndexedDB успішно очищено! Перезавантажуємо сторінку...");
+      window.location.reload();
+    } catch (error) {
+      console.error("Purging IndexedDB failed", error);
+      alert(`Не вдалося очистити IndexedDB: ${error.message}`);
+    }
   }
 }
 

@@ -48,80 +48,216 @@
     </div>
   </header>
 
-  <!-- Main Grid Container -->
+  <!-- Zen Navigation Dock/Tabs Bar -->
+  <nav class="zen-nav">
+    <button class="zen-nav-btn active" data-tab="avatar" title="Натисніть 'A' на клавіатурі">
+      <span class="nav-key">[A]</span>
+      <span class="nav-icon">👤</span>
+      <span class="nav-text">Мій Аватар</span>
+    </button>
+    <button class="zen-nav-btn" data-tab="domain" title="Натисніть 'D' на клавіатурі">
+      <span class="nav-key">[D]</span>
+      <span class="nav-icon">🎮</span>
+      <span class="nav-text">Ігри (Domain)</span>
+    </button>
+    <button class="zen-nav-btn" data-tab="shop" title="Натисніть 'C' на клавіатурі">
+      <span class="nav-key">[C]</span>
+      <span class="nav-icon">🛒</span>
+      <span class="nav-text">Cyber Shop</span>
+    </button>
+    <button class="zen-nav-btn" data-tab="build" title="Натисніть 'B' на клавіатурі">
+      <span class="nav-key">[B]</span>
+      <span class="nav-icon">⚙️</span>
+      <span class="nav-text">Параметри (Build)</span>
+    </button>
+  </nav>
+
+  <!-- Main Focus Container -->
   <main class="main-container">
     
-    <!-- Profile & Customization Panel (Left) -->
-    <section class="panel profile-panel">
-      <div class="avatar-container">
-        <canvas id="avatar-canvas" width="256" height="256"></canvas>
-      </div>
-      
-      <div class="player-info">
-        <h2 id="player-name">Завантаження...</h2>
-        <p>Коміт-послідовність: <strong id="player-seq">0</strong></p>
-      </div>
-
-      <!-- GitHub Cloud Sync Settings -->
-      <div class="git-settings-panel">
-        <button id="toggle-git-settings" class="git-settings-toggle-btn">⚙️ Налаштувати GitHub Cloud</button>
-        <div id="git-settings-content" class="git-settings-content hidden">
-          <div class="input-group">
-            <label for="git-pat">GitHub Token (PAT):</label>
-            <input type="password" id="git-pat" placeholder="ghp_..." title="Згенеруйте токен з правами 'repo' або 'gist' на github.com" />
+    <!-- Tab 1: [A] Avatar & Customizer -->
+    <section id="view-avatar" class="zen-tab-panel active">
+      <div class="avatar-view-layout">
+        <!-- Visual Column -->
+        <div class="avatar-preview-card">
+          <div class="avatar-container">
+            <canvas id="avatar-canvas" width="256" height="256"></canvas>
           </div>
-          <div class="input-group">
-            <label for="git-repo">Репозиторій (user/repo):</label>
-            <input type="text" id="git-repo" placeholder="taras/my-saves" title="Наприклад, 'myname/saves-repo'" />
+          <div class="player-info">
+            <h2 id="player-name">Завантаження...</h2>
+            <p>Коміт-послідовність: <strong id="player-seq">0</strong></p>
           </div>
-          <div class="input-group">
-            <label for="git-filepath">Шлях у репозиторії:</label>
-            <input type="text" id="git-filepath" value="saves/save.json" title="Шлях, куди буде записано файл" />
-          </div>
-          <button id="save-git-config-btn" class="buy-btn" style="width: 100%; margin-top: 0.5rem; background: var(--glow-cyan); color: #000; font-weight: bold;">
-            Зберегти та Синхронізувати
-          </button>
         </div>
-      </div>
-      
-      <!-- Editor / Customizer Controls -->
-      <div id="editor-options" class="editor-container">
-        <!-- Буде заповнено динамічно через hub.js -->
-        <p style="text-align: center; color: var(--text-secondary);">Ініціалізація редактора...</p>
-      </div>
-    </section>
-
-    <!-- Center Hero Panel -->
-    <section class="panel center-panel">
-      <div class="lobby-hero">
-        <h1 id="lobby-welcome-title">Mine & Craft Lobby</h1>
-        <p>
-          Ласкаво просимо до вашого суверенного ігрового кабінету. Тут ви можете кастомізувати свій цифровий аватар, купувати унікальні кібернетичні апгрейди та запускати безпечні ізольовані розваги.
-        </p>
-        <p style="font-size: 0.9rem; color: var(--text-secondary);">
-          Всі ваші досягнення зберігаються автономно в IndexedDB і можуть бути синхронізовані через фоновий Git-репозиторій або передані через низькошвидкісні середньохвильові радіолінки EME.
-        </p>
         
-        <button id="play-btn" class="btn-primary" title="Запустити безпечну гру Match-3">
-          🚀 Запустити Match-3 Adventure
-        </button>
-      </div>
-
-      <!-- Dev Logger Console HUD -->
-      <div class="console-container">
-        <h3>System Log Console</h3>
-        <div id="dev-console" class="console-log">
-          <p>[00:00:00] Ініціалізація Mine & Craft Avatar Hub...</p>
+        <!-- Editor Controls Column -->
+        <div class="avatar-editor-card">
+          <h2>🧬 Кастомізація Аватара</h2>
+          <p class="tab-subtitle">Виберіть куплені модифікації для персоналізації вашого цифрового аватара.</p>
+          <div id="editor-options" class="editor-container">
+            <p style="text-align: center; color: var(--text-secondary);">Ініціалізація редактора...</p>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- Cyber Shop Panel (Right) -->
-    <section class="panel shop-panel">
-      <h2>Cyber Shop</h2>
-      <div id="shop-list" class="shop-list">
-        <!-- Буде заповнено динамічно через hub.js -->
-        <p style="text-align: center; color: var(--text-secondary);">Завантаження товарів...</p>
+    <!-- Tab 2: [D] Domain (Games Library) -->
+    <section id="view-domain" class="zen-tab-panel">
+      <div class="domain-view-layout">
+        <div class="lobby-hero">
+          <h1>Мій Суверенний Домен</h1>
+          <p>
+            Тут ви можете запускати безпечні ізольовані ігри. Усі здобуті ресурси автоматично підписуються криптографічним токеном і зараховуються на ваш баланс.
+          </p>
+        </div>
+        
+        <!-- Games Library Grid -->
+        <div class="games-library">
+          <h3>🎮 БІБЛІОТЕКА ІГОР (GAMES LIBRARY)</h3>
+          <div class="games-grid">
+            <!-- Card 1: Match-3 Miner -->
+            <div class="game-card active">
+              <div class="game-card-icon">🪙</div>
+              <div class="game-card-info">
+                <h4>Crystal Miner (Match-3)</h4>
+                <p>Видобуток золота, рубінів та сапфірів у неонових шахтах</p>
+              </div>
+              <button id="play-match3-btn" class="game-play-btn">🚀 Запустити майнер</button>
+            </div>
+            
+            <!-- Card 2: The Shape We Become -->
+            <div id="somatic-game-card" class="game-card locked">
+              <div class="game-card-icon">🧠</div>
+              <div class="game-card-info">
+                <h4>The Shape We Become</h4>
+                <p>Симулятор адаптації нервової системи та соматичного стресу</p>
+              </div>
+              <div id="somatic-game-status">
+                <span class="game-lock-badge">🔒 Заблоковано (Купіть у Cyber Shop за 100 золото)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dev Logger Console HUD -->
+        <div class="console-container">
+          <h3>System Log Console</h3>
+          <div id="dev-console" class="console-log">
+            <p>[00:00:00] Ініціалізація Mine & Craft Avatar Hub...</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 3: [C] Cyber Shop (Categorized & Hierarchical) -->
+    <section id="view-shop" class="zen-tab-panel">
+      <div class="shop-view-layout">
+        <div class="shop-header">
+          <h2>🛒 Cyber Shop</h2>
+          <p class="tab-subtitle">Купуйте нові кібернетичні імпланти, зачіски та розблоковуйте ігри за ігрові руди.</p>
+          
+          <!-- Category Tabs Bar -->
+          <div class="shop-category-tabs">
+            <button class="shop-tab-btn active" data-category="all">Всі товари</button>
+            <button class="shop-tab-btn" data-category="base">Тіла (Skins)</button>
+            <button class="shop-tab-btn" data-category="miner">Crystal Miner (Асети)</button>
+            <button class="shop-tab-btn" data-category="somatic">Somatic (Ядра & Гра)</button>
+          </div>
+        </div>
+        
+        <!-- Shop List Grid -->
+        <div id="shop-list" class="shop-grid">
+          <p style="text-align: center; color: var(--text-secondary);">Завантаження товарів...</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 4: [B] Build (Settings & Dual-Path Saving) -->
+    <section id="view-build" class="zen-tab-panel">
+      <div class="build-view-layout">
+        <h2>🛠️ Параметри Системи (Build Settings)</h2>
+        <p class="tab-subtitle">Керуйте вашими збереженнями через хмарні репозиторії або локальні офлайн-файли.</p>
+        
+        <div class="settings-grid">
+          <!-- Card A: Sovereign Save Sync (Git vs File Backup) -->
+          <div class="settings-card">
+            <h3>💾 Збереження та Синхронізація (Dual-Path Saves)</h3>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.2rem;">
+              Оберіть зручний для вас варіант резервного копіювання.
+            </p>
+            
+            <!-- File Backup UI (Path B - Local File) -->
+            <div class="settings-section">
+              <h4>Варіант 1: Локальний файл збереження (Офлайн-бекап)</h4>
+              <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.8rem;">
+                Ідеально для гри без інтернету або без акаунту GitHub.
+              </p>
+              <div class="file-sync-buttons">
+                <button id="export-save-btn" class="settings-btn glow-pink-hover">
+                  📤 Експортувати save.json
+                </button>
+                <label for="import-save-file" class="settings-btn-label glow-cyan-hover">
+                  📥 Імпортувати з файлу
+                </label>
+                <input type="file" id="import-save-file" accept=".json" style="display: none;" />
+              </div>
+            </div>
+            
+            <hr class="card-divider" />
+            
+            <!-- Git Backup UI (Path A - GitHub cloud) -->
+            <div class="settings-section">
+              <h4>Варіант 2: Синхронізація з власного GitHub</h4>
+              <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.8rem;">
+                Збереження автоматично синхронізуються з вашим репозиторієм при кожній дії.
+              </p>
+              <div class="git-settings-form">
+                <div class="input-group">
+                  <label for="git-pat">GitHub Token (PAT):</label>
+                  <input type="password" id="git-pat" placeholder="ghp_..." title="Персональний токен з доступом до репозиторію" />
+                </div>
+                <div class="input-group">
+                  <label for="git-repo">Репозиторій (user/repo):</label>
+                  <input type="text" id="git-repo" placeholder="username/my-avatar-saves" />
+                </div>
+                <div class="input-group">
+                  <label for="git-filepath">Шлях у репозиторії:</label>
+                  <input type="text" id="git-filepath" value="saves/save.json" />
+                </div>
+                <button id="save-git-config-btn" class="buy-btn" style="width: 100%; margin-top: 0.8rem; background: var(--glow-cyan); color: #000; font-weight: bold; border: none; padding: 0.7rem;">
+                  Зберегти та Синхронізувати Git
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Card B: Local Storage Maintenance -->
+          <div class="settings-card">
+            <h3>⚡ Обслуговування сховища (IndexedDB)</h3>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.2rem;">
+              Очищення або скидання локальних даних браузера.
+            </p>
+            <div class="maintenance-buttons">
+              <button id="reset-profile-btn" class="settings-btn danger-hover">
+                ❌ Скинути профіль до дефолту
+              </button>
+              <button id="clear-db-btn" class="settings-btn danger-hover">
+                🧹 Очистити IndexedDB повністю
+              </button>
+            </div>
+            
+            <hr class="card-divider" style="margin: 1.5rem 0;" />
+            
+            <h3>📶 EME OS Node Info (Mesh Network)</h3>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.8rem;">
+              Поточні параметри підключення до автономного радіо-вузла.
+            </p>
+            <div class="eme-info-box">
+              <p>Мережа: <strong id="eme-net-status">Пошук вузлів...</strong></p>
+              <p>Швидкість: <strong>100 - 250 bps (LoRa/EME)</strong></p>
+              <p>Режим відскоку від Місяця: <strong>Доступний при SNR > -29 dB</strong></p>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -130,7 +266,7 @@
   <!-- Sandbox Game Modal (Full-Screen Iframe) -->
   <div id="game-container" class="game-container-modal">
     <div class="game-header">
-      <h2>Secured Sandbox Session: Match-3 Game</h2>
+      <h2>Secured Sandbox Session</h2>
       <button id="close-game-btn" class="close-btn">Exit Session (Save & Close)</button>
     </div>
     <!-- 🔒 Безпечна ізоляція: sandbox без allow-same-origin захищає parent від крадіжки localStorage/IndexedDB -->
