@@ -2,14 +2,14 @@
   "version": 3,
   "player": {
     "username": "player_2368",
-    "sequence": 4,
+    "sequence": 5,
     "last_sync_hash": "00000000"
   },
   "resources": {
-    "resource:ruby": 168,
-    "resource:sapphire": 106,
+    "resource:ruby": 0,
+    "resource:sapphire": 0,
     "resource:emerald": 76,
-    "resource:gold": 44,
+    "resource:gold": 0,
     "resource:eme_token": 0
   },
   "inventory": {
@@ -39,5 +39,142 @@
       "resource:sapphire": 56,
       "resource:emerald": 66
     }
+  },
+  "somatic_game_state": {
+    "day": 1,
+    "dayNumber": 1,
+    "globalStep": 0,
+    "isTutorialDone": false,
+    "completedEventIds": [],
+    "history": {
+      "1": {
+        "day": 1,
+        "dayNumber": 1,
+        "safety": 70,
+        "axes": {
+          "Safety": 70,
+          "Expression": 50,
+          "Attachment": 50
+        },
+        "traits": {
+          "TheGhost": 0,
+          "ThePerformer": 0,
+          "TheGuardian": 0,
+          "TheThorn": 0,
+          "TheChameleon": 0,
+          "TheFrozen": 0
+        },
+        "echoScores": {
+          "ghostling": 0,
+          "thornlet": 0
+        },
+        "resources": {
+          "love": 0,
+          "food": 0,
+          "rest": 0
+        },
+        "parents": {
+          "archetype": "anxious",
+          "stress": 20,
+          "energy": 80
+        },
+        "isDissociated": false,
+        "somaticUsedToday": 0
+      }
+    },
+    "safety": 70,
+    "axes": {
+      "Safety": 70,
+      "Expression": 50,
+      "Attachment": 50
+    },
+    "traits": {
+      "TheGhost": 0,
+      "ThePerformer": 0,
+      "TheGuardian": 0,
+      "TheThorn": 0,
+      "TheChameleon": 0,
+      "TheFrozen": 0
+    },
+    "echoScores": {
+      "ghostling": 0,
+      "thornlet": 0
+    },
+    "resources": {
+      "love": 0,
+      "food": 0,
+      "rest": 0
+    },
+    "parents": {
+      "archetype": "anxious",
+      "stress": 20,
+      "energy": 80
+    },
+    "board": [
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    ],
+    "tensionTiles": [],
+    "isDissociated": false,
+    "dissociationTurnsLeft": 0,
+    "expressionBlocked": false,
+    "goldenTilePosition": null,
+    "somaticUsedToday": 0,
+    "somaticClicks": 0,
+    "faceData": null,
+    "bodyColor": "peach",
+    "playerProfile": null,
+    "userProfile": null,
+    "charItems": [
+      "skin_default",
+      "hair_default",
+      "eyes_default"
+    ]
   }
 }
