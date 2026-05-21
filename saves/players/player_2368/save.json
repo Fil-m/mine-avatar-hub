@@ -1,0 +1,42 @@
+{
+  "version": 3,
+  "player": {
+    "username": "player_2368",
+    "sequence": 3,
+    "last_sync_hash": "00000000"
+  },
+  "resources": {
+    "resource:ruby": 168,
+    "resource:sapphire": 106,
+    "resource:emerald": 76,
+    "resource:gold": 144,
+    "resource:eme_token": 0
+  },
+  "inventory": {
+    "charItems": [
+      "skin_default",
+      "hair_default",
+      "eyes_default",
+      "skin_neon"
+    ],
+    "unlockedGames": [
+      "match3"
+    ]
+  },
+  "activeCharacter": {
+    "base": "skin_default",
+    "hair": "hair_default",
+    "eyes": "eyes_default"
+  },
+  "last_session": {
+    "game_id": "match3",
+    "game_version": "1.2.0",
+    "duration": 97,
+    "earned": {
+      "resource:gold": 244,
+      "resource:ruby": 68,
+      "resource:sapphire": 56,
+      "resource:emerald": 66
+    }
+  }
+}
