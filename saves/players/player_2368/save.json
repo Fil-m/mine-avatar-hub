@@ -2,7 +2,7 @@
   "version": 3,
   "player": {
     "username": "player_2368",
-    "sequence": 16,
+    "sequence": 17,
     "last_sync_hash": "00000000"
   },
   "resources": {
@@ -25,7 +25,7 @@
     ]
   },
   "activeCharacter": {
-    "base": "skin_neon",
+    "base": "skin_default",
     "hair": "hair_default",
     "eyes": "eyes_default"
   },
