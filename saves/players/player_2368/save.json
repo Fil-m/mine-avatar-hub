@@ -2,14 +2,14 @@
   "version": 3,
   "player": {
     "username": "player_2368",
-    "sequence": 7,
+    "sequence": 8,
     "last_sync_hash": "00000000"
   },
   "resources": {
-    "resource:ruby": 12,
-    "resource:sapphire": 3,
+    "resource:ruby": 0,
+    "resource:sapphire": 0,
     "resource:emerald": 91,
-    "resource:gold": 20,
+    "resource:gold": 0,
     "resource:eme_token": 0
   },
   "inventory": {
