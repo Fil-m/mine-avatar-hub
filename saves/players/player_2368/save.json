@@ -2,14 +2,14 @@
   "version": 3,
   "player": {
     "username": "player_2368",
-    "sequence": 3,
+    "sequence": 4,
     "last_sync_hash": "00000000"
   },
   "resources": {
     "resource:ruby": 168,
     "resource:sapphire": 106,
     "resource:emerald": 76,
-    "resource:gold": 144,
+    "resource:gold": 44,
     "resource:eme_token": 0
   },
   "inventory": {
@@ -20,7 +20,8 @@
       "skin_neon"
     ],
     "unlockedGames": [
-      "match3"
+      "match3",
+      "somatic_game"
     ]
   },
   "activeCharacter": {
